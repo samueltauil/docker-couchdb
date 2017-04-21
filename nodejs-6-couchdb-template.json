@@ -128,6 +128,72 @@
             }
         },
         {
+           "kind": "BuildConfig",
+           "apiVersion": "v1",
+           "metadata": {
+               "name": "${COUCHDB_NAME}",
+               "creationTimestamp": null,
+               "labels": {
+                   "app": "${COUCHDB_NAME}"
+               },
+               "annotations": {
+                   "openshift.io/generated-by": "OpenShiftNewApp"
+               }
+           },
+           "spec": {
+               "triggers": [
+                   {
+                       "type": "GitHub",
+                       "github": {
+                           "secret": "${GITHUB_WEBHOOK_SECRET}"
+                       }
+                   },
+                   {
+                       "type": "Generic",
+                       "generic": {
+                           "secret": "${GENERIC_WEBHOOK_SECRET}"
+                       }
+                   },
+                   {
+                       "type": "ConfigChange"
+                   },
+                   {
+                       "type": "ImageChange",
+                       "imageChange": {}
+                   }
+               ],
+               "runPolicy": "Serial",
+               "source": {
+                   "type": "Git",
+                   "git": {
+                       "uri": "${COUCHDB_REPOSITORY_DOCKERFILE}",
+                       "ref": "${COUCHDB_REPOSITORY_REF}"
+                   }
+               },
+               "strategy": {
+                   "type": "Docker",
+                   "dockerStrategy": {
+                       "from": {
+                           "kind": "ImageStreamTag",
+                           "name": "debian:jessie"
+                       }
+                   }
+               },
+               "output": {
+                   "to": {
+                       "kind": "ImageStreamTag",
+                       "name": "couchdb:latest"
+                   }
+               },
+               "resources": {},
+               "postCommit": {},
+               "nodeSelector": null
+           },
+           "status": {
+               "lastVersion": 0
+           }
+       },
+        {
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
@@ -558,10 +624,21 @@
             "value": "couchdb"
         },
         {
+            "name": "COUCHDB_REPOSITORY_DOCKERFILE",
+            "displayName": "CouchDB Dockerfile Repository",
+            "value": "https://github.com/samueltauil/docker-couchdb",
+            "required": true
+        },
+        {
+            "name": "COUCHDB_REPOSITORY_REF",
+            "displayName": "Git Reference",
+            "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
+        },
+        {
             "name": "COUCHDB_SERVICE_URI",
             "displayName": "Internal service url to access CouchDB",
             "value": "http://couchdb.myproject.svc.cluster.local:5984"
         }
     ]
-     
+
 }
